@@ -1,62 +1,68 @@
-import React, { useEffect, useState } from 'react'
-import MovieCard from './MovieCard'
-import SearchIcon from './Search.svg'
-import './App.css'
+import React, { useEffect, useState } from 'react';
+import MovieCard from './MovieCard';
+import SearchIcon from './Search.svg';
+import './App.css';
 
+const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+const API_URL = `https://www.omdbapi.com/?apikey=${API_KEY}`;
 
-      const Api_Key="http://www.omdbapi.com?apikey=d8be6891"
+function App() {
+  const [searchMovie, setSearchMovie] = useState('');
+  const [movies, setMovies] = useState([]);
 
-      function App() {
-        const [searchmovie, setsearchmovie]=useState("")
-        const [movie, setmovie]=useState([])
+  // Fetch movies
+  const fetchMovies = async (title) => {
+    try {
+      const response = await fetch(`${API_URL}&s=${title}`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-        const SearchMovie=async(title)=>{
-        const response= await fetch(`${Api_Key}&s=${title}`)
-        const data= await response.json()
-        setmovie(data.Search)
+      const data = await response.json();
+
+      if (data.Search) {
+        setMovies(data.Search);
+      } else {
+        setMovies([]);
       }
+    } catch (error) {
+      console.error('Fetch Error:', error);
+    }
+  };
 
-      useEffect(()=>{
+  // Trigger search when the user clicks the button
+  const handleSearch = () => {
+    if (searchMovie.trim()) {
+      fetchMovies(searchMovie);
+    }
+  };
 
-        SearchMovie(searchmovie)
-      },[])
+  useEffect(() => {
+    fetchMovies( searchMovie)
+  }, []);
 
+  return (
+    <div className="app">
+      <h1>MovieLand</h1>
+      <div className="search">
+        <input
+          type="text"
+          value={searchMovie}
+          onChange={(e) => setSearchMovie(e.target.value)}
+          placeholder="Search for a movie..."
+        />
+        <img src={SearchIcon} alt="search" onClick={handleSearch} />
+      </div>
 
+      {movies.length > 0 ? (
+        <div className="container">
+          {movies.map((movie) => (
+            <MovieCard key={movie.imdbID} movie1={movie} />
+          ))}
+        </div>
+      ) : (
+        <h1>No movie Found</h1>
+      )}
+    </div>
+  );
+}
 
-        return (
-          <div className='app'>
-            <h1>MovieLand</h1>
-            <div className='search'>
-             <input 
-             type="text"
-             value={searchmovie}
-             onChange={(e)=>setsearchmovie(e.target.value)}
-             />
-             <img src={SearchIcon} alt="search"
-             onClick={()=>{SearchMovie(searchmovie)}} />
-
-            </div>
-        {
-          movie?.length>0 ?
-          (
-            
-              <div className='container'>
-                {movie.map((item)=>(
-                <MovieCard movie1={item}/>
-                ))} 
-      
-              </div>
-        ) : 
-      
-        (
-          <div>
-            <h1>Movie Not Found</h1>
-          </div>
-        )
-        }   
-        
-          </div>
-        )
-      }
-
-      export default App
+export default App;
