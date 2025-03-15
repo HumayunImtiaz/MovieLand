@@ -11,8 +11,7 @@ function MovieCard({movie1}) {
 
        <div>
        <img src={movie1.Poster !== "N/A" ? movie1.Poster : "https://via.placeholder.com/400"} alt="Movie Poster" />
-
-       </div>
+my name is sundas</div>
 
        <div>
         <span>{movie1.Type}</span>

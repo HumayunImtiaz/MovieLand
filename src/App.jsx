@@ -14,29 +14,19 @@ function App() {
   const fetchMovies = async (title) => {
     try {
       const response = await fetch(`${API_URL}&s=${title}`);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = response.ok ? await response.json() : null;
 
-      const data = await response.json();
-
-      if (data.Search) {
-        setMovies(data.Search);
-      } else {
-        setMovies([]);
-      }
+      setMovies(data?.Search || []);
     } catch (error) {
       console.error('Fetch Error:', error);
     }
   };
 
   // Trigger search when the user clicks the button
-  const handleSearch = () => {
-    if (searchMovie.trim()) {
-      fetchMovies(searchMovie);
-    }
-  };
+  const handleSearch = () => searchMovie.trim() && fetchMovies(searchMovie);
 
   useEffect(() => {
-    fetchMovies( searchMovie)
+    fetchMovies('Batman'); // Default search when the component mounts
   }, []);
 
   return (
@@ -52,15 +42,15 @@ function App() {
         <img src={SearchIcon} alt="search" onClick={handleSearch} />
       </div>
 
-      {movies.length > 0 ? (
+      {movies.length > 0 && (
         <div className="container">
           {movies.map((movie) => (
             <MovieCard key={movie.imdbID} movie1={movie} />
           ))}
         </div>
-      ) : (
-        <h1>No movie Found</h1>
       )}
+
+      {movies.length === 0 && <h1>No movie found</h1>}
     </div>
   );
 }
